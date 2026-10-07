@@ -167,16 +167,21 @@ db.scan(b'foobarfoobar', match_event_handler=callback)
 ## Serialization
 
 Refer to the [Hyperscan documentation][9] for more information on
-serialization, its use cases, and caveats. Usage is simple:
+serialization, its use cases, and caveats. When restoring a database,
+pass the same mode that was used to create the original database.
+Scratch space is not part of the serialized database, so allocate a new
+``Scratch`` object before scanning the restored database:
 
 ```python
 # Serializing (dumping to bytes)
+mode = db.mode
 serialized = hyperscan.dumpb(db)
 with open('hs.db', 'wb') as f:
     f.write(serialized)
 
-# Deserializing (loading from bytes):
-db = hyperscan.loadb(serialized)
+# Deserializing (loading from bytes)
+loaded_db = hyperscan.loadb(serialized, mode)
+loaded_db.scratch = hyperscan.Scratch(loaded_db)
 ```
 
 ## Chimera Mode
